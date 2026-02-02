@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import {Header} from "./components/Header"
 import styles from "./app.module.css"
 import { Tip } from "./components/Tip"
@@ -15,21 +13,52 @@ function getRandomChallenge(): Challenge {
   return WORDS[index];
 }
 
+const ATTEMPT_NUMBER = 3
+
 export default function App() {
-  const [attempt, setAttempt] = useState(0)
+
+  const [score, setScore] = useState(0)
   const [letter, setLetter] = useState("")
   const [challenge, setChallenge] = useState<Challenge | null>(() => getRandomChallenge());
-  const [letterUsed, setLetterUsed] = useState<UsedLetterProps[]>([{value:"R", correct: false}])
+  const [letterUsed, setLetterUsed] = useState<UsedLetterProps[]>([])
 
   function startGame() {
     setChallenge(getRandomChallenge());
-    setAttempt(0)
+    setScore(0)
     setLetter("")
-    console.log(`Número de tentativas = ${attempt}, última letra = ${letter}, a palavra é = ${challenge?.word}`)
+    setLetterUsed([])
+    
+  }
+
+  function handleConfirm() {
+
+    if(!challenge){
+      return alert("Ainda não existe um desafio.")
+    }
+
+    if(!letter.trim()){
+      return alert("Digite uma letra!")
+    }
+
+    const value = letter.toUpperCase()
+    const exists = letterUsed.find((used) => used.value.toUpperCase() === value)
+
+    if(exists) {
+      return alert(`A letra "${value}" já foi utilizada!`)
+    }
+
+    const hits = challenge.word.toUpperCase().split("").filter((char) => char === value).length
+
+    const correct = hits > 0
+    const currentScore = score + hits
+
+    setLetterUsed((prevState) => [...prevState, {value, correct}])
+    setScore(currentScore)
+
+    setLetter("")
   }
 
   function onRestart() {
-    alert("O jogo será reinicializados!");
     startGame();
   }
 
@@ -40,19 +69,22 @@ export default function App() {
   return(
     <div className={styles.container}>
       <main>
-        <Header max={10} current={attempt} onRestart={onRestart}/>
-        <Tip tip="Biblioteca para criar interfaces Web com Javascript." />
+        <Header max={challenge.word.length + ATTEMPT_NUMBER} current={letterUsed.length} onRestart={onRestart}/>
+        <Tip tip={challenge.tip} />
         <div className={styles.word}>
           {
-            challenge.word.split("").map(()=>(
-              <Letter value="" />
-            ))
+            challenge.word.split("").map((letter, index) => {
+              const lettersUsed = letterUsed.find((used) => used.value.toUpperCase() === letter.toUpperCase())
+              console.log(lettersUsed)
+
+              return <Letter value={lettersUsed?.value.toString() || ""} key={index} answer={lettersUsed?.correct ? "correct" : "default"}/>
+            })
           }
         </div>
         <h4>Palpite</h4>
         <div className={styles.guess}>
-          <Input autoFocus maxLength={1} placeholder="?"/>
-          <Button title="Confirmar" onClick={startGame}/>
+          <Input autoFocus maxLength={1} placeholder="?" value={letter} onChange={(e) => setLetter(e.target.value)}/>
+          <Button title="Confirmar" onClick={handleConfirm}/>
         </div>
         <LettersUsed data={letterUsed}/>
       </main>

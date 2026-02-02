@@ -17,7 +17,11 @@ export function LettersUsed({ data }:Props){
             <div>
                 {
                     data.map(({value, correct}) => (
-                        <Letter size="small" value={value} answer={correct ? "correct" : "wrong"} />
+                        <Letter 
+                            size="small" 
+                            key={value}
+                            value={value} 
+                            answer={correct ? "correct" : "wrong"} />
                     ))
                 }
             </div>

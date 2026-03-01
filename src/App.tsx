@@ -22,6 +22,7 @@ export default function App() {
   const [letter, setLetter] = useState("")
   const [challenge, setChallenge] = useState<Challenge | null>(() => getRandomChallenge());
   const [letterUsed, setLetterUsed] = useState<UsedLetterProps[]>([])
+  const [shake, setShake] = useState(false)
 
   function startGame() {
     setChallenge(getRandomChallenge());
@@ -63,6 +64,11 @@ export default function App() {
     setScore(currentScore)
 
     setLetter("")
+
+    if(!correct) {
+      setShake(true)
+      setTimeout(() => setShake(false), 500)
+    }
   }
 
   function onRestart() {
@@ -102,7 +108,8 @@ export default function App() {
       <main>
         <Header max={challenge.word.length + ATTEMPT_NUMBER_MARGIN} current={letterUsed.length} onRestart={onRestart}/>
         <Tip tip={challenge.tip} />
-        <div className={styles.word}>
+        {/*${shake && styles.shake} -> se shake for true, a classe shake será adicionada, caso contrário, não será adicionada. */}
+        <div className={`${styles.word} ${shake && styles.shake}`}>
           {
             challenge.word.split("").map((letter, index) => {
               const lettersUsed = letterUsed.find((used) => used.value.toUpperCase() === letter.toUpperCase())

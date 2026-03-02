@@ -8,6 +8,7 @@ import { Button } from "./components/Button"
 import { LettersUsed, type UsedLetterProps } from "./components/LettersUsed"
 import { WORDS, type Challenge } from "./utils/words"
 import { useEffect, useState } from "react"
+import { Footer } from "./components/Footer"
 
 function getRandomChallenge(): Challenge {
   const index = Math.floor(Math.random() * WORDS.length);
@@ -123,7 +124,9 @@ export default function App() {
           <Button title="Confirmar" onClick={handleConfirm}/>
         </div>
         <LettersUsed data={letterUsed}/>
+        <Footer />
       </main>
+      
     </div>
   )
 }
